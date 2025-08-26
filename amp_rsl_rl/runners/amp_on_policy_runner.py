@@ -268,7 +268,10 @@ class AMPOnPolicyRunner:
                 self.writer = WandbSummaryWriter(
                     log_dir=self.log_dir, flush_secs=10, cfg=self.cfg
                 )
-                update_run_name_with_sequence(prefix=self.cfg["wandb_project"])
+                if self.cfg['run_name'] is "":
+                    update_run_name_with_sequence(prefix=self.cfg["wandb_project"])
+                else:
+                    wandb.run.name = self.cfg['run_name']
 
                 wandb.gym.monitor()
                 self.writer.log_config(
