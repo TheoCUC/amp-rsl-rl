@@ -147,25 +147,12 @@ class AMPOnPolicyRunner:
             ).to(self.device)
         )
         # NOTE: to use this we need to configure the observations in the env coherently with amp observation. Tested with Manager Based envs in Isaaclab
-        amp_joint_names = self.env.cfg.observations.amp.joint_pos.params['asset_cfg'].joint_names
-
-        delta_t = self.env.cfg.sim.dt * self.env.cfg.decimation
 
         # Initilize all the ingredients required for AMP (discriminator, dataset loader)
         num_amp_obs = extras["observations"]["amp"].shape[1]
-        amp_data = AMPLoader(
-            self.device,
-            self.cfg["amp_data_path"],
-            self.cfg["dataset_names"],
-            self.cfg["dataset_weights"],
-            delta_t,
-            self.cfg["slow_down_factor"],
-            amp_joint_names,
-        )
+        # breakpoint()
+        amp_data = env.unwrapped.motion_manager
 
-        # self.env.unwrapped.scene["robot"].joint_names)
-
-        # amp_data = AMPLoader(num_amp_obs, self.device)
         self.amp_normalizer = Normalizer(num_amp_obs, device=self.device)
         self.discriminator = Discriminator(
             input_dim=num_amp_obs* 2,  # the discriminator takes in the concatenation of the current and next observation
@@ -353,9 +340,8 @@ class AMPOnPolicyRunner:
 
                     mean_task_reward_log += rewards.mean().item()
                     mean_style_reward_log += style_rewards.mean().item()
-
-                    # Combine the task and style rewards (TODO this can be a hyperparameters)
-                    rewards = 0.5 * rewards + 0.5 * style_rewards
+                    # Combine the task and style rewards
+                    rewards = self.cfg['task_reward_weight'] * rewards + self.cfg['style_reward_weight'] * style_rewards
 
                     self.alg.process_env_step(rewards, dones, infos)
                     self.alg.process_amp_step(next_amp_obs)
