@@ -51,4 +51,4 @@ Changelog = "https://github.com/ami-iit/amp-rsl-rl/releases"
 local_scheme = "dirty-tag"
 
 [tool.setuptools]
-packages = ["amp_rsl_rl"]
+packages = ["amp_rsl_rl", "ase_rsl_rl"]

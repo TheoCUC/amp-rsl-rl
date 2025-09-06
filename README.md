@@ -2,6 +2,8 @@
 
 AMP-RSL-RL is a reinforcement learning library that extends the Proximal Policy Optimization (PPO) implementation of [RSL-RL](https://github.com/leggedrobotics/rsl_rl) to incorporate Adversarial Motion Priors (AMP). This framework enables humanoid agents to learn motor skills from motion capture data using adversarial imitation learning techniques.
 
+The repository also provides a **preliminary framework for Adversarial Skill Embeddings (ASE)** built on top of RSL-RL. The ASE components are located under the `ase_rsl_rl` package and offer an extensible scaffold for skill-conditioned policies and discriminators.
+
 ---
 
 ## 📦 Installation
@@ -58,6 +60,13 @@ amp_rsl_rl/
 ├── runners/           # Training and evaluation routines
 ├── storage/           # Replay buffer for experience collection
 ├── utils/             # Dataset loaders and motion tools
+
+ase_rsl_rl/
+│
+├── algorithms/        # ASE extensions of PPO
+├── networks/          # Skill-conditioned discriminators
+├── storage/           # Replay buffer placeholders for ASE
+└── utils/             # Minimal ASE dataset utilities
 ```
 
 ---
