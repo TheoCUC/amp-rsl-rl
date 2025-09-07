@@ -55,6 +55,11 @@ class AMPOnPolicyRunner:
     - "save_interval": frequency (in iterations) for model checkpointing
     - "empirical_normalization": whether to apply running observation normalization
     - "logger": one of "tensorboard", "wandb", or "neptune"
+    
+    Additionally, the constructor exposes a `use_trackerlab` flag. When set to
+    `True`, motion data is obtained from the environment's ``motion_manager`` as
+    provided by TrackerLab. Otherwise, the runner loads datasets from disk using
+    :class:`AMPLoader`.
 
     ---
     📦 Dataset format
@@ -125,7 +130,13 @@ class AMPOnPolicyRunner:
 
     """
 
-    def __init__(self, env: VecEnv, train_cfg, log_dir=None, device="cpu"):
+    def __init__(self, 
+                 env: VecEnv, 
+                 train_cfg, 
+                 log_dir=None, 
+                 device="cpu",
+                 use_trackerlab: bool = False
+                 ):
         self.cfg = train_cfg
         self.alg_cfg = train_cfg["algorithm"]
         self.policy_cfg = train_cfg["policy"]
@@ -146,12 +157,29 @@ class AMPOnPolicyRunner:
                 num_obs, num_critic_obs, self.env.num_actions, **self.policy_cfg
             ).to(self.device)
         )
-        # NOTE: to use this we need to configure the observations in the env coherently with amp observation. Tested with Manager Based envs in Isaaclab
+
 
         # Initilize all the ingredients required for AMP (discriminator, dataset loader)
         num_amp_obs = extras["observations"]["amp"].shape[1]
-        # breakpoint()
-        amp_data = env.unwrapped.motion_manager
+        if use_trackerlab:
+            assert hasattr(
+                env.unwrapped, "motion_manager"
+            ), "Environment must provide a motion_manager for AMP when use_trackerlab is True"
+            amp_data = env.unwrapped.motion_manager
+        else:
+            # NOTE: to use this we need to configure the observations in the env coherently with amp observation. Tested with Manager Based envs in Isaaclab
+            amp_joint_names = self.env.cfg.observations.amp.joint_pos.params['asset_cfg'].joint_names
+
+            delta_t = self.env.cfg.sim.dt * self.env.cfg.decimation
+            amp_data = AMPLoader(
+                self.device,
+                self.cfg["amp_data_path"],
+                self.cfg["dataset_names"],
+                self.cfg["dataset_weights"],
+                delta_t,
+                self.cfg["slow_down_factor"],
+                amp_joint_names,
+            )
 
         self.amp_normalizer = Normalizer(num_amp_obs, device=self.device)
         self.discriminator = Discriminator(

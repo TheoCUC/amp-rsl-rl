@@ -2,6 +2,8 @@
 
 AMP-RSL-RL is a reinforcement learning library that extends the Proximal Policy Optimization (PPO) implementation of [RSL-RL](https://github.com/leggedrobotics/rsl_rl) to incorporate Adversarial Motion Priors (AMP). This framework enables humanoid agents to learn motor skills from motion capture data using adversarial imitation learning techniques.
 
+This repository is largely consistent with the [original repository](https://github.com/ami-iit/amp-rsl-rl) but includes interfaces compatible with the data management mechanism of [trackerLab](https://github.com/interval-package/trackerLab).
+
 ---
 
 ## 📦 Installation

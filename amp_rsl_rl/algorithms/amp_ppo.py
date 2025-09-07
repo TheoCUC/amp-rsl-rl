@@ -77,7 +77,7 @@ class AMP_PPO:
         self,
         actor_critic: ActorCritic,
         discriminator: Discriminator,
-        amp_data: AMPLoader,
+        amp_data: Any,
         amp_normalizer: Optional[Any],
         num_learning_epochs: int = 1,
         num_mini_batches: int = 1,
